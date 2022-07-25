@@ -10,7 +10,7 @@
 //! ```
 //! # use jni::JNIEnv;
 //! # use catch_panic::catch_panic;
-//!
+//! #
 //! #[no_mangle]
 //! #[catch_panic]
 //! pub extern "C" fn Java_com_example_Example_panic(_env: JNIEnv) {
@@ -37,7 +37,7 @@
 //! # use jni::JNIEnv;
 //! # use jni::sys::jobject;
 //! # use catch_panic::catch_panic;
-//!
+//! #
 //! #[no_mangle]
 //! #[catch_panic(default = "std::ptr::null_mut()")]
 //! pub extern "C" fn Java_com_example_Example_gimmeAnObject(env: JNIEnv) -> jobject {
@@ -58,7 +58,7 @@
 //! # use std::any::Any;
 //! # use jni::JNIEnv;
 //! # use catch_panic::catch_panic;
-//!
+//! #
 //! pub fn enterprise_certified_handler(env: JNIEnv, err: Box<dyn Any + Send + 'static>) {
 //!     let msg = match err.downcast_ref::<&'static str>() {
 //!         Some(s) => *s,
