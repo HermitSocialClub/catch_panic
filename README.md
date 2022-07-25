@@ -1,4 +1,4 @@
-# ⚾ #[catch_panic]
+# ⚾ #\[catch_panic\]
 
 [![Crates.io](https://img.shields.io/crates/v/catch_panic.svg)](https://crates.io/crates/catch_panic)
 [![Documentation](https://docs.rs/catch_panic/badge.svg)](https://docs.rs/catch_panic)
@@ -19,7 +19,20 @@ catch_panic = "1.0.0"
 
 ## Usage
 
-// todo write example code
+Attach `#[catch_panic]` to a JNI callback to have panics converted into `RuntimeException`s:
+
+```rust
+use jni::JNIEnv;
+use catch_panic::catch_panic;
+
+#[no_mangle]
+#[catch_panic]
+pub extern "C" fn Java_com_example_Example_panic(_env: JNIEnv) {
+    panic!("everything is not fine");
+}
+```
+
+See the [docs](https://docs.rs/catch_panic) for macro options and more information.
 
 
 ## License
