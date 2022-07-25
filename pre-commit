@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# ============================
+#     git pre-commit hook
+# ============================
+# Add this file to .git/hooks/
+# to get automatic formatting
+# on every commit.
+
+# fail if any subcommand fails
+set -e
+
+# sanity checks
+cargo clippy -- -D warnings
+
+# rustfmt
+cargo fmt
+git update-index --again
