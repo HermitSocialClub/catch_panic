@@ -13,7 +13,16 @@ repository = "https://github.com/HermitSocialClub/catch_panic"
 description = "A helper macro for safe Java-Rust interop that \"catches\" Rust panics and rethrows them as Java exceptions."
 keywords = ["ffi", "jni", "java"]
 categories = ["api-bindings"]
+exclude = ["testlib"]
+
+[features]
+# internal feature for doctests
+internal-doctests = []
 
 [dependencies]
 jni = "0"
 catch_panic_macros = { version = "1.0.0", path = "../catch_panic_macros" }
+
+[dev-dependencies]
+jni = { version = "0", features = ["invocation"] }
+catch_panic = { path = ".", features = ["internal-doctests"] }

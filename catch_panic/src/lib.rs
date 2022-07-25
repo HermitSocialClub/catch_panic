@@ -16,6 +16,8 @@
 //! pub extern "C" fn Java_com_example_Example_panic(_env: JNIEnv) {
 //!     panic!("everything is not fine");
 //! }
+//!
+//! # catch_panic::test::check_callback(|env| Java_com_example_Example_panic(env), true);
 //! ```
 //!
 //! Since `#[catch_panic]` internally relies on Rust's [catch_unwind] function,
@@ -41,6 +43,8 @@
 //! pub extern "C" fn Java_com_example_Example_gimmeAnObject(env: JNIEnv) -> jobject {
 //!     env.alloc_object("java/lang/Object").unwrap().into_inner()
 //! }
+//!
+//! # catch_panic::test::check_callback(|env| Java_com_example_Example_gimmeAnObject(env), false);
 //! ```
 //!
 //! Any valid expression can be used for the default value.
@@ -71,7 +75,62 @@
 //! pub extern "C" fn Java_com_example_Example_makeFactoryNoises(env: JNIEnv) {
 //!     panic!("<insert factory noises>");
 //! }
+//!
+//! # catch_panic::test::check_callback_with_setup(
+//! #     |env| {
+//! #         let src = std::fs::read("testlib/ExampleEnterpriseException.class")
+//! #             .expect("ExampleEnterpriseException test class file missing!");
+//! #
+//! #         let object_class = env.find_class("java/lang/Object").unwrap();
+//! #         let object_class_loader = env
+//! #             .call_method(object_class, "getClassLoader", "()Ljava/lang/ClassLoader;", &[])
+//! #             .unwrap();
+//! #
+//! #         env.define_class(
+//! #             "com/example/ExampleEnterpriseException",
+//! #             object_class_loader.try_into().unwrap(),
+//! #             &src,
+//! #         )
+//! #         .unwrap();
+//! #     },
+//! #     |env| Java_com_example_Example_makeFactoryNoises(env),
+//! #     true,
+//! # );
 //! ```
 
 pub mod handler;
 pub use catch_panic_macros::catch_panic;
+
+#[cfg(feature = "internal-doctests")]
+pub mod test {
+    use jni::JNIEnv;
+
+    // Rust doesn't have a conventional way to depend on other crates'
+    // test code, so we pull in jni-rs' testing utils through a git submodule
+    #[path = "../../testlib/jni-rs/tests/util/mod.rs"]
+    mod util;
+
+    pub fn check_callback<C, R>(callback: C, should_throw: bool)
+    where
+        C: Fn(JNIEnv) -> R,
+    {
+        check_callback_with_setup(|_| {}, callback, should_throw)
+    }
+
+    pub fn check_callback_with_setup<S, C, R>(setup: S, callback: C, should_throw: bool)
+    where
+        S: FnOnce(JNIEnv),
+        C: Fn(JNIEnv) -> R,
+    {
+        let env = util::attach_current_thread();
+        setup(*env);
+        callback(*env);
+        assert_eq!(
+            env.exception_check().expect("Couldn't check if there was an exception"),
+            should_throw,
+            "Expected callback to {}throw when it {} throw",
+            if should_throw { "" } else { "not " },
+            if should_throw { "did not" } else { "did" },
+        );
+    }
+}

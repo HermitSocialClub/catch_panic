@@ -1,0 +1,3 @@
+[submodule "catch_panic/testlib/jni-rs"]
+	path = catch_panic/testlib/jni-rs
+	url = https://github.com/jni-rs/jni-rs
