@@ -102,6 +102,7 @@ pub mod handler;
 pub use catch_panic_macros::catch_panic;
 
 #[cfg(feature = "internal-doctests")]
+#[doc(hidden)]
 pub mod test {
     use jni::JNIEnv;
 
@@ -132,5 +133,14 @@ pub mod test {
             if should_throw { "" } else { "not " },
             if should_throw { "did not" } else { "did" },
         );
+    }
+}
+
+#[cfg(test)]
+mod ui_tests {
+    #[test]
+    pub fn ui_tests() {
+        let t = trybuild::TestCases::new();
+        t.compile_fail("ui_tests/fail/*.rs");
     }
 }

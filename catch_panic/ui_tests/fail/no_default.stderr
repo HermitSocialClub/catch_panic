@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `*mut _jobject: Default` is not satisfied
+ --> ui_tests/fail/no_default.rs:5:1
+  |
+5 | #[catch_panic]
+  | ^^^^^^^^^^^^^^ the trait `Default` is not implemented for `*mut _jobject`
+  |
+  = note: this error originates in the attribute macro `catch_panic` (in Nightly builds, run with -Z macro-backtrace for more info)

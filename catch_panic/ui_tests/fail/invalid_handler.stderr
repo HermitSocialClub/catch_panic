@@ -1,0 +1,5 @@
+error: unexpected token
+ --> ui_tests/fail/invalid_handler.rs:4:25
+  |
+4 | #[catch_panic(handler = "accepting panic donations --> |_|")]
+  |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

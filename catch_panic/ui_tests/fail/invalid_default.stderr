@@ -1,0 +1,5 @@
+error: unexpected token
+ --> ui_tests/fail/invalid_default.rs:5:25
+  |
+5 | #[catch_panic(default = "magic fairy dust")]
+  |                         ^^^^^^^^^^^^^^^^^^
