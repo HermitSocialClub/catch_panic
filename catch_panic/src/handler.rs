@@ -1,3 +1,5 @@
+//! Implementation of the default `#[catch_panic]` handler.
+
 use std::any::Any;
 use std::panic::{catch_unwind, UnwindSafe};
 
