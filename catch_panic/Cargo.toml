@@ -24,6 +24,6 @@ jni = "0"
 catch_panic_macros = { version = "1.0.0", path = "../catch_panic_macros" }
 
 [dev-dependencies]
-jni = { version = "0", features = ["invocation"] }
+jni = { version = "0.21.1", features = ["invocation"] }
 catch_panic = { path = ".", features = ["internal-doctests"] }
 trybuild = "1.0.63"
