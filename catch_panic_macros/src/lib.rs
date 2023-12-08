@@ -103,7 +103,13 @@ pub fn catch_panic(attr: TokenStream, item: TokenStream) -> TokenStream {
     TokenStream::from(quote! {
         #(#attrs)*
         #vis #sig {
-            ::catch_panic::handler::__catch_panic(#first_arg_name, #default_value, #handler, move || {
+            // Safety: one JNIEnv goes to #handler, the other one goes to
+            // #block closure. __catch_panic() itself do not use JNIEnv so
+            // any local reference created with JNIEnv must be within #hander
+            // and/or #block, and these references are guaranteed to be
+            // discarded when #handler or #block exit.
+            let __handler_env = unsafe { #first_arg_name.unsafe_clone() };
+            ::catch_panic::handler::__catch_panic(__handler_env, #default_value, #handler, move || {
                 #block
             })
         }
