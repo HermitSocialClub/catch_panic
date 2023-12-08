@@ -40,8 +40,8 @@
 //! #
 //! #[no_mangle]
 //! #[catch_panic(default = "std::ptr::null_mut()")]
-//! pub extern "C" fn Java_com_example_Example_gimmeAnObject(env: JNIEnv) -> jobject {
-//!     env.alloc_object("java/lang/Object").unwrap().into_inner()
+//! pub extern "C" fn Java_com_example_Example_gimmeAnObject(mut env: JNIEnv) -> jobject {
+//!     env.alloc_object("java/lang/Object").unwrap().into_raw()
 //! }
 //!
 //! # catch_panic::test::check_callback(|env| Java_com_example_Example_gimmeAnObject(env), false);
@@ -59,7 +59,7 @@
 //! # use jni::JNIEnv;
 //! # use catch_panic::catch_panic;
 //! #
-//! pub fn enterprise_certified_handler(env: JNIEnv, err: Box<dyn Any + Send + 'static>) {
+//! pub fn enterprise_certified_handler(mut env: JNIEnv, err: Box<dyn Any + Send + 'static>) {
 //!     let msg = match err.downcast_ref::<&'static str>() {
 //!         Some(s) => *s,
 //!         None => match err.downcast_ref::<String>() {
@@ -88,7 +88,7 @@
 //! #
 //! #         env.define_class(
 //! #             "com/example/ExampleEnterpriseException",
-//! #             object_class_loader.try_into().unwrap(),
+//! #             &object_class_loader.try_into().unwrap(),
 //! #             &src,
 //! #         )
 //! #         .unwrap();
@@ -120,12 +120,17 @@ pub mod test {
 
     pub fn check_callback_with_setup<S, C, R>(setup: S, callback: C, should_throw: bool)
     where
-        S: FnOnce(JNIEnv),
+        S: FnOnce(&mut JNIEnv),
         C: Fn(JNIEnv) -> R,
     {
         let env = util::attach_current_thread();
-        setup(*env);
-        callback(*env);
+        unsafe {
+            // Safety: cloned env will be dropped before guard drop, and do not
+            // create local reference crossing local reference frame. 
+            let mut env = env.unsafe_clone();
+            setup(&mut env);
+            callback(env);
+        }
         assert_eq!(
             env.exception_check().expect("Couldn't check if there was an exception"),
             should_throw,

@@ -2,4 +2,4 @@ error: #[catch_panic] requires that this function has at least one argument of t
  --> ui_tests/fail/no_jni_env.rs:4:1
   |
 4 | fn no_jni_env() {
-  | ^^^^^^^^^^^^^^^
+  | ^^

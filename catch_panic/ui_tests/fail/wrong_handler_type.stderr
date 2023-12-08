@@ -1,17 +1,22 @@
 error[E0631]: type mismatch in function arguments
-  --> ui_tests/fail/wrong_handler_type.rs:9:25
-   |
-4  | pub fn trust_me(_env: JNIEnv, err: String) {
-   | ------------------------------------------ found signature of `for<'r> fn(JNIEnv<'r>, String) -> _`
+ --> ui_tests/fail/wrong_handler_type.rs:9:25
+  |
+4 | pub fn trust_me(_env: JNIEnv, err: String) {
+  | ------------------------------------------ found signature defined here
 ...
-9  | #[catch_panic(handler = "trust_me")]
-   | ------------------------^^^^^^^^^^--
-   | |                       |
-   | |                       expected signature of `for<'r> fn(JNIEnv<'r>, Box<(dyn Any + Send + 'static)>) -> _`
-   | required by a bound introduced by this call
-   |
+9 | #[catch_panic(handler = "trust_me")]
+  | ------------------------^^^^^^^^^^--
+  | |                       |
+  | |                       expected due to this
+  | required by a bound introduced by this call
+  |
+  = note: expected function signature `for<'a> fn(JNIEnv<'a>, Box<(dyn Any + Send + 'static)>) -> _`
+             found function signature `for<'a> fn(JNIEnv<'a>, String) -> _`
 note: required by a bound in `__catch_panic`
-  --> src/handler.rs
-   |
-   |     H: FnOnce(JNIEnv, Box<dyn Any + Send + 'static>),
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `__catch_panic`
+ --> src/handler.rs
+  |
+  | pub fn __catch_panic<F, R, H>(env: JNIEnv, default: R, handler: H, f: F) -> R
+  |        ------------- required by a bound in this function
+...
+  |     H: FnOnce(JNIEnv, Box<dyn Any + Send + 'static>),
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `__catch_panic`
